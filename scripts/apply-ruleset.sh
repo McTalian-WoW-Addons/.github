@@ -26,6 +26,10 @@ RULESET_FILE="$SCRIPT_DIR/../rulesets/default.json"
 RULESET_NAME="Default"
 DRY_RUN=false
 
+# Repos excluded from --all (don't use the shared reusable workflows,
+# so "pr-checks / Passing PR Checks" is not a valid required status check)
+EXCLUDED_REPOS=("wow-build-tools" ".github")
+
 # --- Helpers ---
 
 usage() {
@@ -141,8 +145,23 @@ main() {
     local count
     count=$(echo "$repos" | wc -l | tr -d ' ')
     echo "Found $count repos in $ORG:"
+    if [[ ${#EXCLUDED_REPOS[@]} -gt 0 ]]; then
+      echo "Excluding: ${EXCLUDED_REPOS[*]}"
+    fi
     echo ""
     while IFS= read -r repo; do
+      # Skip excluded repos
+      local skip=false
+      for excluded in "${EXCLUDED_REPOS[@]}"; do
+        if [[ "$repo" == "$excluded" ]]; then
+          skip=true
+          break
+        fi
+      done
+      if $skip; then
+        echo "⏭️  $ORG/$repo (excluded)"
+        continue
+      fi
       apply_ruleset "$repo"
     done <<< "$repos"
   else
