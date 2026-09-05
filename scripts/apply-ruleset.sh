@@ -28,7 +28,7 @@ DRY_RUN=false
 
 # Repos excluded from --all (don't use the shared reusable workflows,
 # so "pr-checks / Passing PR Checks" is not a valid required status check)
-EXCLUDED_REPOS=("wow-build-tools" ".github")
+EXCLUDED_REPOS=("wow-build-tools" ".github" "wow-addon-agent-tools")
 
 # --- Helpers ---
 
